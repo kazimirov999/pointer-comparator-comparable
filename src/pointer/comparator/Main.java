@@ -84,13 +84,6 @@ public class Main {
     }
 
     private static Comparator<? super Commodity> getComparator(String fieldName, String order) {
-//        if (fieldName == null || "".equals(fieldName)) {
-//            fieldName = "id";
-//        }
-//
-//        if (order == null || "".equals(order)) {
-//            order = "asc";
-//        }
 
         if ("name".equalsIgnoreCase(fieldName)) {
             return DESC.equals(order) ? (o1, o2) -> o2.getName().compareTo(o1.getName()) :
