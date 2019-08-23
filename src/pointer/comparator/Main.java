@@ -19,13 +19,11 @@ public class Main {
             try {
                 switch (command) {
                     case ADD:
-                        boolean isAdded = commodityList.add(new Commodity(scanner.nextInt(), scanner.next(),
-                                scanner.nextInt(), scanner.nextLong()));
-
-                        if (isAdded) {
+                        if (commodityList.add(new Commodity(scanner.nextInt(), scanner.next(),
+                                scanner.nextInt(), scanner.nextLong()))) {
                             System.out.println("Commodity is added.");
                         } else {
-                            System.out.println("Commodity is not added. Use new Commodity id.");
+                            System.out.println("Commodity is not added. Use new positive Commodity id.");
                         }
                         break;
 
@@ -41,8 +39,12 @@ public class Main {
                         break;
 
                     case UPDATE:
-                        commodityList.update(new Commodity(scanner.nextInt(), scanner.next(), scanner.nextInt(),
-                                scanner.nextLong()));
+                        if (commodityList.update(new Commodity(scanner.nextInt(), scanner.next(), scanner.nextInt(),
+                                scanner.nextLong()))) {
+                            System.out.println("Commodity is updated.");
+                        } else {
+                            System.out.println("Commodity is not added. Wrong commodity ID.");
+                        }
                         break;
 
                     case SORT:
@@ -50,33 +52,45 @@ public class Main {
                         break;
 
                     case SHOW:
-                        System.out.println(commodityList.getCommodities());
+                        next = scanner.next();
+
+                        if ("all".equals(next)) {
+                            System.out.println(commodityList.getCommodities());
+                        } else {
+                            try {
+                                Commodity commodity = commodityList.search(Integer.parseInt(next));
+                                System.out.println(commodity == null ? "no commodity" : commodity);
+                            } catch (NumberFormatException e) {
+                                System.out.println(commodityList.search(next));
+                            }
+                        }
                         break;
                 }
             } catch (InputMismatchException ex) {
                 System.out.println("Wrong command.");
                 help();
+            } finally {
+                command = Command.getNextCommand(scanner);
             }
-            command = Command.getNextCommand(scanner);
         }
-
     }
 
     private static void help() {
+        System.out.println("- show all | <commodity id:int> | <name:String>");
         System.out.println("- add <commodity id:int> <name:String> <price:int> <inStock:long>");
         System.out.println("- remove <commodity id:int> OR remove <name:String>");
         System.out.println("- update <commodity id:int> <name:String> <price:int> <inStock:long>");
-        System.out.println("- sort <fieldName:String> <order:String>. Field names: 'id', 'name', 'price', 'inStock'. Order: 'asc', 'desc'.");
+        System.out.println("- sort <fieldName:String> <order:String>. Field names: ['id', 'name', 'price', 'inStock']. Order: ['asc', 'desc'].");
     }
 
     private static Comparator<? super Commodity> getComparator(String fieldName, String order) {
-        if (fieldName == null || "".equals(fieldName)) {
-            fieldName = "id";
-        }
-
-        if (order == null || "".equals(order)) {
-            order = "asc";
-        }
+//        if (fieldName == null || "".equals(fieldName)) {
+//            fieldName = "id";
+//        }
+//
+//        if (order == null || "".equals(order)) {
+//            order = "asc";
+//        }
 
         if ("name".equalsIgnoreCase(fieldName)) {
             return DESC.equals(order) ? (o1, o2) -> o2.getName().compareTo(o1.getName()) :

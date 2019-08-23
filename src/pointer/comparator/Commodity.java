@@ -9,10 +9,10 @@ public class Commodity {
     private long inStock;
 
     public Commodity(int id, String name, int price, long inStock) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.inStock = inStock;
+        this.id = id >= 0 ? id : 0;
+        setName(name);
+        setPrice(price);
+        setInStock(inStock);
     }
 
     public int getId() {
@@ -29,6 +29,18 @@ public class Commodity {
 
     public long getInStock() {
         return inStock;
+    }
+
+    public void setName(String name) {
+        this.name = name != null ? name : "Commodity";
+    }
+
+    public void setPrice(int price) {
+        this.price = price >= 0 ? price : 0;
+    }
+
+    public void setInStock(long inStock) {
+        this.inStock = inStock >= 0 ? inStock : 0;
     }
 
     @Override
