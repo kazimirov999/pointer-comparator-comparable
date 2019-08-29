@@ -6,6 +6,7 @@ public class CommodityManager {
     private List<Commodity> commodityList;
     private int idCounter;
     private static final String DEFAULT_SORTING_ORDER = "decrease";
+    Scanner in = new Scanner(System.in);
 
     public CommodityManager(List<Commodity> commodityList) {
         this.idCounter = 0;
@@ -45,7 +46,7 @@ public class CommodityManager {
 
     void add() {
         System.out.println("Enter name, price and number of new commodity");
-        Commodity newCommodity = new Commodity(idCounter, enterStringParameter(), enterDoubleParameter(), enterIntParameter());
+        Commodity newCommodity = new Commodity(idCounter, in.next(), in.nextDouble(), in.nextInt());
         if (commodityList.contains(newCommodity)) {
             System.out.println("Already added");
         } else {
@@ -59,7 +60,7 @@ public class CommodityManager {
 
     void delete() {
         System.out.println("Enter name: ");
-        String name = enterStringParameter();
+        String name = in.next();
         Iterator<Commodity> iterator = commodityList.listIterator();
         while (iterator.hasNext()) {
             if (name.equals(iterator.next().getName())) {
@@ -70,7 +71,7 @@ public class CommodityManager {
 
     void update() {
         System.out.println("Enter ID: ");
-        int id = enterIntParameter();
+        int id = in.nextInt();
         Iterator<Commodity> iterator = commodityList.listIterator();
         while (iterator.hasNext()) {
             if (id == iterator.next().getId()) {
@@ -82,9 +83,9 @@ public class CommodityManager {
     void sort() {
         System.out.println("Enter sorting order: decrease or increase");
         System.out.println("Warning!!! If you enter anything but these commands the program will sort in increasing order.");
-        String order = enterStringParameter().toLowerCase();
+        String order = in.next().toLowerCase();
         System.out.println("Enter field: name, id, price, stock");
-        String field = enterStringParameter().toLowerCase();
+        String field = in.next().toLowerCase();
 
         if (field.equals("name")) {
             Collections.sort(commodityList, new NameComparator(order));
@@ -181,17 +182,6 @@ public class CommodityManager {
         }
     }
 
-    String enterStringParameter() {
-        return Commands.in.nextLine();
-    }
-
-    double enterDoubleParameter() {
-        return Commands.in.nextDouble();
-    }
-
-    int enterIntParameter() {
-        return Commands.in.nextInt();
-    }
 
 }
 

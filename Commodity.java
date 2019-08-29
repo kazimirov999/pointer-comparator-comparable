@@ -3,7 +3,7 @@ package com.pointer.comparable;
 ;
 import java.util.Objects;
 
-public class Commodity{
+public class Commodity {
     private int id;
     private String name;
     private double price;
