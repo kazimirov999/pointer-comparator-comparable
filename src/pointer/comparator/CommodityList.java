@@ -1,6 +1,9 @@
 package pointer.comparator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 public class CommodityList {
 
@@ -26,19 +29,9 @@ public class CommodityList {
     }
 
     public boolean addAll(Collection<? extends Commodity> commodities) {
-        Iterator<? extends Commodity> iterator = commodities.iterator();
+        commodities.removeIf(commodity -> update(commodity));
 
-        while (iterator.hasNext()) {
-            Commodity commodity = iterator.next();
-
-            if (this.commodities.contains(commodity)) {
-                update(commodity);
-                iterator.remove();
-            }
-        }
-
-        this.commodities.addAll(commodities);
-        return true;
+        return this.commodities.addAll(commodities);
     }
 
     public Commodity search(int id) {
@@ -54,13 +47,12 @@ public class CommodityList {
     public List<Commodity> search(String name) {
         List<Commodity> commodityList = new LinkedList<>();
 
-        if (name == null || "".equals(name)) {
+        if (name == null || name.isEmpty()) {
             return commodityList;
         }
 
-
         for (Commodity commodity : commodities) {
-            if (commodity.getName().equals(name)) {
+            if (name.equals(commodity.getName())) {
                 commodityList.add(commodity);
             }
         }
@@ -80,17 +72,27 @@ public class CommodityList {
     }
 
     public void remove(int id) {
-        this.commodities.removeIf(c -> c.getId() == id);
+        this.commodities.removeIf(c -> c.hasId(id));
         System.out.println("Commodity with ID '" + id + "' is removed.");
     }
 
     public void remove(String name) {
-        if (name == null || "".equals(name)) {
+        if (name == null || name.isEmpty()) {
             return;
         }
 
-        this.commodities.removeIf(c -> c.getName().equals(name));
+        this.commodities.removeIf(c -> c.hasName(name));
         System.out.println("Commodity with name '" + name + "' is removed.");
+    }
+
+    public void remove(String name, int price) {
+        this.commodities.removeIf(c -> c.hasName(name) && c.hasPrice(price));
+        System.out.println("Commodities with price '" + price + "' is removed.");
+    }
+
+    public void remove(int id, String name, int price) {
+        this.commodities.removeIf(c -> c.hasId(id) && c.hasName(name) && c.hasPrice(price));
+        System.out.println("Commodities with price '" + price + "' is removed.");
     }
 
     public List<Commodity> sort(Comparator<? super Commodity> comparator) {

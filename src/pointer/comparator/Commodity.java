@@ -32,7 +32,7 @@ public class Commodity {
     }
 
     public void setName(String name) {
-        this.name = name != null ? name : "Commodity";
+        this.name = (name == null || name.isEmpty()) ? "Commodity" : name;
     }
 
     public void setPrice(int price) {
@@ -41,6 +41,18 @@ public class Commodity {
 
     public void setInStock(long inStock) {
         this.inStock = inStock >= 0 ? inStock : 0;
+    }
+
+    public boolean hasId(int id) {
+        return getId() == id;
+    }
+
+    public boolean hasName(String name) {
+        return getName().equals(name);
+    }
+
+    public boolean hasPrice(int price) {
+        return getPrice() == price;
     }
 
     @Override
@@ -60,8 +72,8 @@ public class Commodity {
     public String toString() {
         return "Commodity{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
+                ", name='" + name +
+                "', price=" + price +
                 ", inStock=" + inStock +
                 '}';
     }

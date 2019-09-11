@@ -1,19 +1,45 @@
 package pointer.comparator;
 
-import java.util.Comparator;
-import java.util.InputMismatchException;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
+    public static final String ASC = "asc";
     public static final String DESC = "desc";
+    private static Scanner scanner;
+
+    private static Map<String, Map<String, Comparator<? super Commodity>>> comparatorMap;
+
+    static {
+        comparatorMap = new HashMap<>();
+
+        comparatorMap.put("id", new HashMap<>());
+        Map<String, Comparator<? super Commodity>> map = comparatorMap.get("id");
+        map.put(ASC, Comparator.comparing(Commodity::getId));
+        map.put(DESC, (o1, o2) -> Long.compare(o2.getId(), o1.getId()));
+
+        comparatorMap.put("name", new HashMap<>());
+        map = comparatorMap.get("name");
+        map.put(ASC, Comparator.comparing(Commodity::getName));
+        map.put(DESC, (o1, o2) -> Integer.compare(o2.getPrice(), o1.getPrice()));
+
+        comparatorMap.put("price", new HashMap<>());
+        map = comparatorMap.get("price");
+        map.put(ASC, Comparator.comparing(Commodity::getPrice));
+        map.put(DESC, (o1, o2) -> Integer.compare(o2.getPrice(), o1.getPrice()));
+
+        comparatorMap.put("inStock", new HashMap<>());
+        map = comparatorMap.get("inStock");
+        map.put(ASC, Comparator.comparing(Commodity::getInStock));
+        map.put(DESC, (o1, o2) -> Long.compare(o2.getInStock(), o1.getInStock()));
+    }
 
     public static void main(String[] args) {
         CommodityList commodityList = new CommodityList();
-        Scanner scanner = new Scanner(System.in);
+        scanner = new Scanner(System.in);
 
         help();
-        Command command = Command.getCommand(scanner);
+        Command command = Command.getCommand(scanner.next());
 
         while (command != Command.EXIT) {
             try {
@@ -70,40 +96,34 @@ public class Main {
                 System.out.println("Wrong command.");
                 help();
             } finally {
-                command = Command.getNextCommand(scanner);
+                command = getCommandInNextLine();
             }
         }
     }
 
     private static void help() {
-        System.out.println("- show all | <commodity id:int> | <name:String>");
-        System.out.println("- add <commodity id:int> <name:String> <price:int> <inStock:long>");
-        System.out.println("- remove <commodity id:int> OR remove <name:String>");
-        System.out.println("- update <commodity id:int> <name:String> <price:int> <inStock:long>");
-        System.out.println("- sort <fieldName:String> <order:String>. Field names: ['id', 'name', 'price', 'inStock']. Order: ['asc', 'desc'].");
+        StringBuilder helpString = new StringBuilder("- show all | <commodity id:int> | <name:String>\n")
+                .append("- add <commodity id:int> <name:String> <price:int> <inStock:long>\n")
+                .append("- remove <commodity id:int> OR remove <name:String>\n")
+                .append("- update <commodity id:int> <name:String> <price:int> <inStock:long>\n")
+                .append("- sort <fieldName:String> <order:String>. Field names: ['id', 'name', 'price', 'inStock']. Order: ['asc', 'desc'].");
+
+        System.out.println(helpString);
     }
 
     private static Comparator<? super Commodity> getComparator(String fieldName, String order) {
 
-        if ("name".equalsIgnoreCase(fieldName)) {
-            return DESC.equals(order) ? (o1, o2) -> o2.getName().compareTo(o1.getName()) :
-                    Comparator.comparing(Commodity::getName);
+        if (!comparatorMap.containsKey(fieldName)) {
+            return comparatorMap.get("id").get(ASC).reversed();
         }
 
-        if ("price".equalsIgnoreCase(fieldName)) {
-            return DESC.equals(order) ? (o1, o2) -> Integer.compare(o2.getPrice(), o1.getPrice()) :
-                    Comparator.comparing(Commodity::getPrice);
-        }
+        Map<String, Comparator<? super Commodity>> map = comparatorMap.get(fieldName);
 
-        if ("inStock".equalsIgnoreCase(fieldName)) {
-            return DESC.equals(order) ? (o1, o2) -> Long.compare(o2.getInStock(), o1.getInStock()) :
-                    Comparator.comparing(Commodity::getInStock);
-        }
+        return map.containsKey(order) ? map.get(order) : map.get(ASC);
+    }
 
-        if ("id".equalsIgnoreCase(fieldName) && DESC.equals(order)) {
-            return (o1, o2) -> Integer.compare(o2.getId(), o1.getId());
-        }
-
-        return Comparator.comparingInt(Commodity::getId);
+    static Command getCommandInNextLine() {
+        scanner.nextLine();
+        return Command.getCommand(scanner.next());
     }
 }
