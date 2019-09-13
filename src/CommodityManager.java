@@ -4,47 +4,26 @@ public class CommodityManager {
     private static Scanner scan = new Scanner(System.in);
 
     private static void delete(List<Commodity> list, String name, float price, int quantity) {
-        Iterator<Commodity> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            Commodity currentCommodity = iterator.next();
-            boolean namesAreEquals = currentCommodity.getName().equalsIgnoreCase(name);
-            boolean pricesAreEquals = currentCommodity.getPrice() == price;
-            boolean quantitiesAreEquals = currentCommodity.getQuantity() == quantity;
-            if (namesAreEquals && pricesAreEquals && quantitiesAreEquals) {
-                iterator.remove();
-            }
-        }
+        list.removeIf(commodity -> {
+            boolean namesAreEquals = commodity.getName().equalsIgnoreCase(name);
+            boolean pricesAreEquals = commodity.getPrice() == price;
+            boolean quantitiesAreEquals = commodity.getQuantity() == quantity;
+            return namesAreEquals && pricesAreEquals && quantitiesAreEquals;
+        });
     }
 
     private static void delete(List<Commodity> list, String name, float price) {
-        Iterator<Commodity> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            Commodity currentCommodity = iterator.next();
-            boolean namesAreEquals = currentCommodity.getName().equalsIgnoreCase(name);
-            boolean pricesAreEquals = currentCommodity.getPrice() == price;
-            if (namesAreEquals && pricesAreEquals) {
-                iterator.remove();
-            }
-        }
+        list.removeIf(commodity -> commodity.getName().equalsIgnoreCase(name) && commodity.getPrice() == price);
     }
 
     private static void delete(List<Commodity> list, String name) {
-        Iterator<Commodity> iterator = list.iterator();
-        while (iterator.hasNext()) {
-            Commodity currentCommodity = iterator.next();
-            boolean namesAreEquals = currentCommodity.getName().equalsIgnoreCase(name);
-            if (namesAreEquals) {
-                iterator.remove();
-            }
-        }
+        list.removeIf(commodity -> commodity.getName().equalsIgnoreCase(name));
     }
 
     private static void replaceWithQuantity(List<Commodity> list, String name, float price) {
-        ListIterator<Commodity> listIterator = list.listIterator();
-        while (listIterator.hasNext()) {
-            Commodity currentIndex = listIterator.next();
-            boolean namesAreEquals = currentIndex.getName().equalsIgnoreCase(name);
-            boolean pricesAreEquals = currentIndex.getPrice() == price;
+        for (Commodity currentCommodity: list){
+            boolean namesAreEquals = currentCommodity.getName().equalsIgnoreCase(name);
+            boolean pricesAreEquals = currentCommodity.getPrice() == price;
             if (namesAreEquals && pricesAreEquals) {
                 System.out.println("Write wannabe commodity name:");
                 String inputName = scan.next();
@@ -52,28 +31,26 @@ public class CommodityManager {
                 float inputPrice = scan.nextFloat();
                 System.out.println("Write wannabe commodity quantity:");
                 int inputQuantity = scan.nextInt();
-                System.out.println("Replacing " + currentIndex.getName() + " with " + currentIndex.getPrice() +
-                        " price and " + currentIndex.getQuantity() + "quantity to: " + inputName + " " + inputPrice +
+                System.out.println("Replacing " + currentCommodity.getName() + " with " + currentCommodity.getPrice() +
+                        " price and " + currentCommodity.getQuantity() + "quantity to: " + inputName + " " + inputPrice +
                         " " + inputQuantity);
-                listIterator.set(new Commodity(inputName, inputPrice, inputQuantity));
+                list.set(list.indexOf(currentCommodity), new Commodity(inputName, inputPrice, inputQuantity));
             }
         }
     }
 
     private static void replace(List<Commodity> list, String name, float price) {
-        ListIterator<Commodity> listIterator = list.listIterator();
-        while (listIterator.hasNext()) {
-            Commodity currentIndex = listIterator.next();
-            boolean namesAreEquals = currentIndex.getName().equalsIgnoreCase(name);
-            boolean pricesAreEquals = currentIndex.getPrice() == price;
+        for (Commodity currentCommodity: list){
+            boolean namesAreEquals = currentCommodity.getName().equalsIgnoreCase(name);
+            boolean pricesAreEquals = currentCommodity.getPrice() == price;
             if (namesAreEquals && pricesAreEquals) {
                 System.out.println("Write wannabe commodity name:");
                 String inputName = scan.next();
                 System.out.println("Write wannabe commodity price:");
                 float inputPrice = scan.nextFloat();
-                System.out.println("Replacing " + currentIndex.getName() + " with " + currentIndex.getPrice() +
+                System.out.println("Replacing " + currentCommodity.getName() + " with " + currentCommodity.getPrice() +
                         " price to: " + inputName + " " + inputPrice);
-                listIterator.set(new Commodity(inputName, inputPrice));
+                list.set(list.indexOf(currentCommodity), new Commodity(inputName, inputPrice));
             }
         }
     }
@@ -150,56 +127,26 @@ public class CommodityManager {
         switch (sortMethod) {
             case 1:
                 if (sortDirection == 1) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return c1.getName().compareTo(c2.getName());
-                        }
-                    });
+                    list.sort(Comparator.comparing(Commodity::getName));
                     break;
                 } else if (sortDirection == 2) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return c2.getName().compareTo(c1.getName());
-                        }
-                    });
+                    list.sort((commodity1, commodity2) -> commodity2.getName().compareTo(commodity1.getName()));
                     break;
                 }
             case 2:
                 if (sortDirection == 1) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return (int) (c1.getPrice() - c2.getPrice());
-                        }
-                    });
+                    list.sort((commodity1, commodity2) -> (int) (commodity1.getPrice() - commodity2.getPrice()));
                     break;
                 } else if (sortDirection == 2) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return (int) (c2.getPrice() - c1.getPrice());
-                        }
-                    });
+                    list.sort((commodity1, commodity2) -> (int) (commodity2.getPrice() - commodity1.getPrice()));
                     break;
                 }
             case 3:
                 if (sortDirection == 1) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return c1.getQuantity() - c2.getQuantity();
-                        }
-                    });
+                    list.sort(Comparator.comparingInt(Commodity::getQuantity));
                     break;
                 } else if (sortDirection == 2) {
-                    list.sort(new Comparator<Commodity>() {
-                        @Override
-                        public int compare(Commodity c1, Commodity c2) {
-                            return c2.getQuantity() - c1.getQuantity();
-                        }
-                    });
+                    list.sort((commodity1, commodity2) -> commodity2.getQuantity() - commodity1.getQuantity());
                     break;
                 }
         }
