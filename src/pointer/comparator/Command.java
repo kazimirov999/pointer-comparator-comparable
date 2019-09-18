@@ -1,14 +1,17 @@
 package pointer.comparator;
 
-public enum Command {
-    ADD, REMOVE, UPDATE, SORT, SHOW, EXIT;
+import java.util.Scanner;
 
-    static Command getCommand(String value) {
+public enum Command {
+    ADD, REMOVE, UPDATE, SORT, SHOW, HELP, EXIT;
+
+    static Command getCommand(Scanner scanner) {
         try {
-            return valueOf(value.toUpperCase());
+            return valueOf(scanner.next().toUpperCase());
         } catch (IllegalArgumentException ex) {
             System.out.println("Wrong command.");
-            return Main.getCommandInNextLine();
+            scanner.nextLine();
+            return getCommand(scanner);
         }
     }
 }

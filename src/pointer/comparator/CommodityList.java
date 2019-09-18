@@ -1,13 +1,14 @@
 package pointer.comparator;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import com.sun.istack.internal.NotNull;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommodityList {
 
     private List<Commodity> commodities = new LinkedList<>();
+    private NullCommodity nullCommodity = new NullCommodity();
 
     public CommodityList() {
     }
@@ -20,55 +21,49 @@ public class CommodityList {
         return commodities;
     }
 
-    public boolean add(Commodity commodity) {
-        if (commodity == null || this.commodities.contains(commodity)) {
+    public boolean add(@NotNull Commodity commodity) {
+        if (commodity.isNull() || commodities.contains(commodity))
             return false;
-        }
 
-        return this.commodities.add(commodity);
+        return commodities.add(commodity);
     }
 
     public boolean addAll(Collection<? extends Commodity> commodities) {
-        commodities.removeIf(commodity -> update(commodity));
+        commodities.removeIf(this::update);
 
         return this.commodities.addAll(commodities);
     }
 
     public Commodity search(int id) {
-        for (Commodity commodity : commodities) {
-            if (commodity.getId() == id) {
-                return commodity;
-            }
-        }
-
-        return null;
+        return commodities.stream()
+                .filter(c -> c.hasId(id))
+                .findFirst()
+                .orElse(nullCommodity);
     }
 
     public List<Commodity> search(String name) {
-        List<Commodity> commodityList = new LinkedList<>();
-
-        if (name == null || name.isEmpty()) {
-            return commodityList;
-        }
-
-        for (Commodity commodity : commodities) {
-            if (name.equals(commodity.getName())) {
-                commodityList.add(commodity);
-            }
-        }
-
-        return commodityList;
+        return (name == null || name.isEmpty()) ?
+                new LinkedList<>() :
+                commodities.stream()
+                        .filter(c -> name.equals(c.getName()))
+                        .collect(Collectors.toList());
     }
 
-    public boolean update(Commodity commodity) {
-        int index = this.commodities.indexOf(commodity);
-
-        if (commodity == null || index == -1) {
+    public boolean update(@NotNull Commodity commodity) {
+        if (commodity.isNull()) {
             return false;
         }
 
-        this.commodities.set(index, commodity);
-        return true;
+        ListIterator<Commodity> listIterator = this.commodities.listIterator();
+
+        while (listIterator.hasNext()) {
+            if (commodity.equals(listIterator.next())) {
+                listIterator.set(commodity);
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void remove(int id) {
@@ -77,10 +72,6 @@ public class CommodityList {
     }
 
     public void remove(String name) {
-        if (name == null || name.isEmpty()) {
-            return;
-        }
-
         this.commodities.removeIf(c -> c.hasName(name));
         System.out.println("Commodity with name '" + name + "' is removed.");
     }
@@ -90,9 +81,14 @@ public class CommodityList {
         System.out.println("Commodities with price '" + price + "' is removed.");
     }
 
-    public void remove(int id, String name, int price) {
-        this.commodities.removeIf(c -> c.hasId(id) && c.hasName(name) && c.hasPrice(price));
-        System.out.println("Commodities with price '" + price + "' is removed.");
+    public void remove(@NotNull Commodity commodity) {
+        if (commodity.isNull()) {
+            System.out.println(commodity + "' is not removed.");
+            return;
+        }
+
+        this.commodities.removeIf(c -> c.equalsTo(commodity));
+        System.out.println(commodity + "' is removed.");
     }
 
     public List<Commodity> sort(Comparator<? super Commodity> comparator) {

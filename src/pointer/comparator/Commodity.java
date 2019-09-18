@@ -3,6 +3,7 @@ package pointer.comparator;
 import java.util.Objects;
 
 public class Commodity {
+
     private int id;
     private String name;
     private int price;
@@ -23,24 +24,28 @@ public class Commodity {
         return name;
     }
 
-    public int getPrice() {
-        return price;
-    }
-
-    public long getInStock() {
-        return inStock;
-    }
-
     public void setName(String name) {
         this.name = (name == null || name.isEmpty()) ? "Commodity" : name;
+    }
+
+    public int getPrice() {
+        return price;
     }
 
     public void setPrice(int price) {
         this.price = price >= 0 ? price : 0;
     }
 
+    public long getInStock() {
+        return inStock;
+    }
+
     public void setInStock(long inStock) {
         this.inStock = inStock >= 0 ? inStock : 0;
+    }
+
+    public boolean isNull() {
+        return false;
     }
 
     public boolean hasId(int id) {
@@ -53,6 +58,11 @@ public class Commodity {
 
     public boolean hasPrice(int price) {
         return getPrice() == price;
+    }
+
+    public boolean equalsTo(Commodity commodity) {
+        return hasId(commodity.getId()) && hasName(commodity.getName()) &&
+                hasPrice(commodity.getPrice()) && getInStock() == commodity.getInStock();
     }
 
     @Override

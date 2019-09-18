@@ -1,129 +1,77 @@
 package pointer.comparator;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.function.BiConsumer;
 
 public class Main {
-
-    public static final String ASC = "asc";
-    public static final String DESC = "desc";
-    private static Scanner scanner;
-
-    private static Map<String, Map<String, Comparator<? super Commodity>>> comparatorMap;
+    private static Map<Command, BiConsumer<CommodityList, Scanner>> commandMap = new HashMap<>();
 
     static {
-        comparatorMap = new HashMap<>();
+        commandMap.put(Command.ADD, (list, scanner) -> System.out.println(list.add(createCommodity(scanner)) ?
+                "Commodity is added." :
+                "Commodity is not added. Use new positive Commodity id."));
 
-        comparatorMap.put("id", new HashMap<>());
-        Map<String, Comparator<? super Commodity>> map = comparatorMap.get("id");
-        map.put(ASC, Comparator.comparing(Commodity::getId));
-        map.put(DESC, (o1, o2) -> Long.compare(o2.getId(), o1.getId()));
+        commandMap.put(Command.UPDATE, (list, scanner) -> System.out.println(list.update(createCommodity(scanner)) ?
+                "Commodity is updated." :
+                "Commodity is not added. Wrong commodity ID."));
 
-        comparatorMap.put("name", new HashMap<>());
-        map = comparatorMap.get("name");
-        map.put(ASC, Comparator.comparing(Commodity::getName));
-        map.put(DESC, (o1, o2) -> Integer.compare(o2.getPrice(), o1.getPrice()));
+        commandMap.put(Command.REMOVE, (list, scanner) -> {
+            if (scanner.hasNextInt()) {
+                list.remove(scanner.nextInt());
+            } else {
+                list.remove(scanner.next());
+            }
+        });
 
-        comparatorMap.put("price", new HashMap<>());
-        map = comparatorMap.get("price");
-        map.put(ASC, Comparator.comparing(Commodity::getPrice));
-        map.put(DESC, (o1, o2) -> Integer.compare(o2.getPrice(), o1.getPrice()));
+        commandMap.put(Command.SHOW, (list, scanner) -> {
 
-        comparatorMap.put("inStock", new HashMap<>());
-        map = comparatorMap.get("inStock");
-        map.put(ASC, Comparator.comparing(Commodity::getInStock));
-        map.put(DESC, (o1, o2) -> Long.compare(o2.getInStock(), o1.getInStock()));
+            if (scanner.hasNextInt()) {
+                System.out.println(list.search(scanner.nextInt()));
+                return;
+            }
+
+            if (scanner.hasNext()) {
+                String next = scanner.next();
+                System.out.println("all".equalsIgnoreCase(next) ? list.getCommodities() : list.search(next));
+            }
+        });
+
+        commandMap.put(Command.SORT, (list, scanner) -> System.out.println(list.sort(Comparators.getComparator(scanner))));
+        commandMap.put(Command.HELP, (list, scanner) -> help());
     }
 
     public static void main(String[] args) {
         CommodityList commodityList = new CommodityList();
-        scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
 
         help();
-        Command command = Command.getCommand(scanner.next());
+        Command command = Command.getCommand(scanner);
 
         while (command != Command.EXIT) {
             try {
-                switch (command) {
-                    case ADD:
-                        if (commodityList.add(new Commodity(scanner.nextInt(), scanner.next(),
-                                scanner.nextInt(), scanner.nextLong()))) {
-                            System.out.println("Commodity is added.");
-                        } else {
-                            System.out.println("Commodity is not added. Use new positive Commodity id.");
-                        }
-                        break;
-
-                    case REMOVE:
-                        String next = scanner.next();
-
-                        try {
-                            commodityList.remove(Integer.parseInt(next));
-                        } catch (NumberFormatException e) {
-                            commodityList.remove(next);
-                        }
-
-                        break;
-
-                    case UPDATE:
-                        if (commodityList.update(new Commodity(scanner.nextInt(), scanner.next(), scanner.nextInt(),
-                                scanner.nextLong()))) {
-                            System.out.println("Commodity is updated.");
-                        } else {
-                            System.out.println("Commodity is not added. Wrong commodity ID.");
-                        }
-                        break;
-
-                    case SORT:
-                        System.out.println(commodityList.sort(getComparator(scanner.next(), scanner.next())));
-                        break;
-
-                    case SHOW:
-                        next = scanner.next();
-
-                        if ("all".equals(next)) {
-                            System.out.println(commodityList.getCommodities());
-                        } else {
-                            try {
-                                Commodity commodity = commodityList.search(Integer.parseInt(next));
-                                System.out.println(commodity == null ? "no commodity" : commodity);
-                            } catch (NumberFormatException e) {
-                                System.out.println(commodityList.search(next));
-                            }
-                        }
-                        break;
-                }
+                commandMap.get(command).accept(commodityList, scanner);
             } catch (InputMismatchException ex) {
                 System.out.println("Wrong command.");
                 help();
             } finally {
-                command = getCommandInNextLine();
+                scanner.nextLine();
+                command = Command.getCommand(scanner);
             }
         }
     }
 
     private static void help() {
-        StringBuilder helpString = new StringBuilder("- show all | <commodity id:int> | <name:String>\n")
-                .append("- add <commodity id:int> <name:String> <price:int> <inStock:long>\n")
-                .append("- remove <commodity id:int> OR remove <name:String>\n")
-                .append("- update <commodity id:int> <name:String> <price:int> <inStock:long>\n")
-                .append("- sort <fieldName:String> <order:String>. Field names: ['id', 'name', 'price', 'inStock']. Order: ['asc', 'desc'].");
-
-        System.out.println(helpString);
+        System.out.println("- show all | <commodity id:int> | <name:String>\n" +
+                "- add <commodity id:int> <name:String> <price:int> <inStock:long>\n" +
+                "- remove <commodity id:int> OR remove <name:String>\n" +
+                "- update <commodity id:int> <name:String> <price:int> <inStock:long>\n" +
+                "- sort <fieldName:String> <order:String>. Field names: ['id', 'name', 'price', 'inStock']. Order: ['asc', 'desc'].");
     }
 
-    private static Comparator<? super Commodity> getComparator(String fieldName, String order) {
-
-        if (!comparatorMap.containsKey(fieldName)) {
-            return comparatorMap.get("id").get(ASC).reversed();
-        }
-
-        Map<String, Comparator<? super Commodity>> map = comparatorMap.get(fieldName);
-
-        return map.containsKey(order) ? map.get(order) : map.get(ASC);
-    }
-
-    static Command getCommandInNextLine() {
-        scanner.nextLine();
-        return Command.getCommand(scanner.next());
+    private static Commodity createCommodity(Scanner scanner) {
+        return new Commodity(scanner.nextInt(), scanner.next(), scanner.nextInt(), scanner.nextLong());
     }
 }
