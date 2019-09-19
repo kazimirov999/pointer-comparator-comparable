@@ -12,5 +12,6 @@ public class Main {
         commodities.add(new Commodity(0, "Beer", 20, 100));
         CommodityManager commodityManager = new CommodityManager(commodities);
         commodityManager.startMenu();
+
     }
 }

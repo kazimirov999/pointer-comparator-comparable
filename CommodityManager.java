@@ -2,13 +2,13 @@ package com.pointer.comparable;
 
 import java.util.*;
 
-public class CommodityManager {
+class CommodityManager {
     private List<Commodity> commodityList;
     private int idCounter;
     private static final String DEFAULT_SORTING_ORDER = "decrease";
     Scanner in = new Scanner(System.in);
 
-    public CommodityManager(List<Commodity> commodityList) {
+    CommodityManager(List<Commodity> commodityList) {
         this.idCounter = 0;
         this.commodityList = commodityList;
     }
@@ -44,7 +44,7 @@ public class CommodityManager {
     }
 
 
-    void add() {
+   private void add() {
         System.out.println("Enter name, price and number of new commodity");
         Commodity newCommodity = new Commodity(idCounter, in.next(), in.nextDouble(), in.nextInt());
         if (commodityList.contains(newCommodity)) {
@@ -58,29 +58,24 @@ public class CommodityManager {
     }
 
 
-    void delete() {
+   private void delete() {
         System.out.println("Enter name: ");
         String name = in.next();
-        Iterator<Commodity> iterator = commodityList.listIterator();
-        while (iterator.hasNext()) {
-            if (name.equals(iterator.next().getName())) {
-                iterator.remove();
-            }
-        }
+        commodityList.removeIf(commodity -> name.equals(commodity.getName()));
     }
 
-    void update() {
+   private void update() {
         System.out.println("Enter ID: ");
         int id = in.nextInt();
-        Iterator<Commodity> iterator = commodityList.listIterator();
+        ListIterator<Commodity> iterator = commodityList.listIterator();
         while (iterator.hasNext()) {
             if (id == iterator.next().getId()) {
-                ((ListIterator<Commodity>) iterator).set(new Commodity(id, Commands.in.nextLine(), Commands.in.nextDouble(), Commands.in.nextInt()));
+                iterator.set(new Commodity(id, Commands.in.nextLine(), Commands.in.nextDouble(), Commands.in.nextInt()));
             }
         }
     }
 
-    void sort() {
+   private void sort() {
         System.out.println("Enter sorting order: decrease or increase");
         System.out.println("Warning!!! If you enter anything but these commands the program will sort in increasing order.");
         String order = in.next().toLowerCase();
@@ -88,100 +83,49 @@ public class CommodityManager {
         String field = in.next().toLowerCase();
 
         if (field.equals("name")) {
-            Collections.sort(commodityList, new NameComparator(order));
+            if(order.equals(DEFAULT_SORTING_ORDER)){
+                commodityList.sort((o1, o2) -> o1.getName().compareTo(o2.getName()));
+            }
+            else {
+                commodityList.sort(((o1, o2) -> o2.getName().compareTo(o1.getName())));
+            }
             System.out.println("Sorted");
         }
         if (field.equals("id")) {
-            Collections.sort(commodityList, new IdComparator(order));
+            if(order.equals(DEFAULT_SORTING_ORDER)){
+                commodityList.sort((o1, o2) -> o1.getId()-o2.getId());
+            }
+            else {
+                commodityList.sort(((o1, o2) -> o2.getId()-o1.getId()));
+            }
             System.out.println("Sorted");
         }
         if (field.equals("price")) {
-            Collections.sort(commodityList, new PriceComparator(order));
+            if(order.equals(DEFAULT_SORTING_ORDER)){
+                commodityList.sort(((o1, o2) -> Double.compare(o1.getPrice(),o2.getPrice())));
+            }
+            else {
+                commodityList.sort(((o1, o2) -> Double.compare(o2.getPrice(),o1.getPrice())));
+            }
             System.out.println("Sorted");
         }
         if (field.equals("stock")) {
-            Collections.sort(commodityList, new InStockComparator(order));
+            if(order.equals(DEFAULT_SORTING_ORDER)){
+                commodityList.sort((o1, o2) -> o1.getInStock()-o2.getInStock());
+            }
+            else {
+                commodityList.sort((o1, o2) -> o2.getInStock()-o1.getInStock());
+            }
             System.out.println("Sorted");
         }
     }
 
 
-    void show() {
-        Iterator<Commodity> iterator = commodityList.listIterator();
-        while (iterator.hasNext()) {
-            System.out.println(iterator.next());
+    private void show() {
+        for (Commodity commodity : commodityList) {
+            System.out.println(commodity);
         }
     }
-
-    private class NameComparator implements Comparator<Commodity> {
-        private String order;
-
-        public NameComparator(String order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(Commodity o1, Commodity o2) {
-            if (order.equals(DEFAULT_SORTING_ORDER)) {
-                return o1.getName().compareTo(o2.getName());
-            } else {
-                return o2.getName().compareTo(o1.getName());
-            }
-        }
-    }
-
-
-    private class IdComparator implements Comparator<Commodity> {
-        private String order;
-
-        public IdComparator(String order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(Commodity o1, Commodity o2) {
-            if (order.equals(DEFAULT_SORTING_ORDER)) {
-                return Integer.compare(o1.getId(), o2.getId());
-            } else {
-                return Integer.compare(o2.getId(), o1.getId());
-            }
-        }
-    }
-
-    private class PriceComparator implements Comparator<Commodity> {
-        private String order;
-
-        public PriceComparator(String order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(Commodity o1, Commodity o2) {
-            if (order.equals(DEFAULT_SORTING_ORDER)) {
-                return Double.compare(o1.getPrice(), o2.getPrice());
-            } else {
-                return Double.compare(o2.getPrice(), o1.getPrice());
-            }
-        }
-    }
-
-    private class InStockComparator implements Comparator<Commodity> {
-        private String order;
-
-        public InStockComparator(String order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(Commodity o1, Commodity o2) {
-            if (order.equals(DEFAULT_SORTING_ORDER)) {
-                return Integer.compare(o1.getInStock(), o2.getInStock());
-            } else {
-                return Integer.compare(o2.getInStock(), o1.getInStock());
-            }
-        }
-    }
-
 
 }
 
