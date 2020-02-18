@@ -6,6 +6,7 @@ public class Main {
     public static void main(String[] args) {
 
         List<Commodity> commodities = new ArrayList<>();
+        
         commodities.add(new Commodity("Хліб", 14, 1.0));
         commodities.add(new Commodity("Яйця", 20, 3.2));
         commodities.add(new Commodity("Дрова", 30, 4.7));
@@ -16,6 +17,7 @@ public class Main {
         commodities.add(new Commodity("Цукор", 654, 97.4));
         commodities.add(new Commodity("Рис", 220, 33.0));
         commodities.add(new Commodity("Булочки", 14, 2.4));
+
         CommodityCentre commodityCentre = new CommodityCentre(commodities);
 
         commodityCentre.showMenu();

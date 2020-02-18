@@ -1,3 +1,4 @@
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Scanner;
@@ -12,9 +13,7 @@ public class CommodityCentre {
     }
 
     void showMenu() {
-        boolean d = true;
-        while (d) {
-
+        while (true) {
             switch (CommodityMenu.getMenu()) {
                 case ADD:
                     addProduct();
@@ -33,9 +32,7 @@ public class CommodityCentre {
                     break;
                 case EXIT:
                     System.out.println("Ви вийшли з програми!");
-                    d = false;
                     System.exit(0);
-
             }
         }
     }
@@ -79,19 +76,25 @@ public class CommodityCentre {
         }
     }
 
-    void sortProducts(){
+    void sortProducts() {
         System.out.println("Введіть тип за яким Ви бажаєте посортувати продукти(nameProduct, price, weight): ");
         String type = scanner.next();
-        if (type.equals("nameProduct")){
-            System.out.println("Посортований список за ім`ям.");
-            commodityList.sort(((o1, o2) -> o1.getNameProduct().compareTo(o2.getNameProduct())));
-            }
-        else if (type.equals("price")){
-            System.out.println("Посортований список за ціною.");
-            commodityList.sort(((o1, o2) -> o1.getPrice()-o2.getPrice()));
+        switch (type) {
+            case "nameProduct":
+                System.out.println("Посортований список за ім`ям.");
+                commodityList.sort((Comparator.comparing(Commodity::getNameProduct)));
+                System.out.println(commodityList);
+                break;
+            case "price":
+                System.out.println("Посортований список за ціною.");
+                commodityList.sort((Comparator.comparingInt(Commodity::getPrice)));
+                System.out.println(commodityList);
+                break;
+            case "weight":
+                System.out.println("Посортований список за вагою.");
+                commodityList.sort((Comparator.comparingDouble(Commodity::getWeight)));
+                System.out.println(commodityList);
+                break;
         }
-        else if (type.equals("weight"))
-        System.out.println("Посортований список за вагою.");
-        commodityList.sort(((o1, o2) -> Double.compare(o1.getWeight(), o2.getWeight())));
     }
 }

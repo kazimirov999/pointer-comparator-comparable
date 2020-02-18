@@ -2,9 +2,9 @@ import java.util.Objects;
 
 public class Commodity {
 
-    String nameProduct;
-    int price;
-    double weight;
+    private String nameProduct;
+    private int price;
+    private double weight;
 
     public Commodity(String nameProduct, int price, double weight) {
         this.nameProduct = nameProduct;
