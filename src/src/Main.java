@@ -21,10 +21,5 @@ public class Main {
         CommodityCentre commodityCentre = new CommodityCentre(commodities);
 
         commodityCentre.showMenu();
-        commodityCentre.addProduct();
-        commodityCentre.deleteProduct();
-        commodityCentre.changeProduct();
-        commodityCentre.showList();
-        commodityCentre.sortProducts();
-    }
+        }
 }
